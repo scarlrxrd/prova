@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandas de Rock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .navigation {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #666;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.active {
+            background: #ff6b35;
+            border-color: #ff6b35;
+        }
+        
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 80px 0 40px;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .band-header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .band-title {
+            font-size: 4rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px rgba(0,0,0,0.8);
+            background: linear-gradient(45deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .band-subtitle {
+            font-size: 1.3rem;
+            color: #ff6b35; 
+            font-style: italic;
+        }
+        
+        .band-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .band-image {
+            width: 100%;
+            max-width: 100%;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .band-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .band-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .band-info {
+            padding: 20px;
+        }
+        
+        .band-info h3 {
+            color: #ff6b35;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 5px;
+        }
+        
+        .band-info p {
+            line-height: 1.6;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: justify;
+        }   
+        
+        .albums-section {
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .albums-title {
+            font-size: 2.5rem;
+            color: #ff6b35;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .album-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+        
+        .album-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        .album-cover {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .album-year {
+            color: #ff6b35;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .album-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .album-tracks {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.4;
+        }
+        
+        .track-item {
+            margin-bottom: 3px;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        
+        .hit-song {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+        
+        /* Cores específicas para cada banda */
+        .metallica .band-title {
+            background: linear-gradient(45deg, #FFD700, #FFA200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metallica .band-subtitle, 
+        .metallica .albums-title, 
+        .metallica .band-info h3, 
+        .metallica .album-year,
+        .metallica .hit-song {
+            color: #FFD700;
+        }
+        
+        .gojira .band-title { 
+            background: linear-gradient(45deg, #228B22, #32CD32); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .gojira .band-subtitle, 
+        .gojira .albums-title, 
+        .gojira .band-info h3, 
+        .gojira .album-year,
+        .gojira .hit-song { 
+            color: #32CD32; 
+        }
+        
+        .rammstein .band-title { 
+            background: linear-gradient(45deg, #DC143C, #FF6347); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .rammstein .band-subtitle, 
+        .rammstein .albums-title, 
+        .rammstein .band-info h3, 
+        .rammstein .album-year,
+        .rammstein .hit-song { 
+            color: #DC143C; 
+        }
+        
+        .motley .band-title { 
+            background: linear-gradient(45deg, #FF1493, #FF69B4); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .motley .band-subtitle, 
+        .motley .albums-title, 
+        .motley .band-info h3, 
+        .motley .album-year,
+        .motley .hit-song { 
+            color: #FF1493; 
+        }
+        
+        @media (max-width: 768px) {
+            .band-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .band-title {
+                font-size: 2.5rem;
+            }
+            
+            .navigation {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            
+            .albums-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegação -->
+    <div class="navigation">
+        <button class="nav-btn active" onclick="showPage('metallica')">Metallica</button>
+        <button class="nav-btn" onclick="showPage('gojira')">Gojira</button>
+        <button class="nav-btn" onclick="showPage('rammstein')">Rammstein</button>
+        <button class="nav-btn" onclick="showPage('motley')">Mötley Crüe</button>
+    </div>
+
+    <!-- Página Metallica -->
+    <div id="metallica" class="page active metallica">
+        <div class="container">
+            <div class="band-header">
+                <h1 class="band-title">Metallica</h1>
+                <p class="band-subtitle">Master of Heavy Metal</p>
+            </div>
+
+            <div class="band-content">
+                <div class="band-image">
+                    <img src="metallica.jpeg" alt="Metallica">
+                </div>
+                <div class="band-info">
+                    <h3>Biografia</h3>
+                    <p>Formada em 1981 em Los Angeles, Califórnia, a banda Metallica é considerada uma das maiores e mais influentes bandas de heavy metal de todos os tempos. Com um som poderoso e letras que abordam temas como a violência, a guerra e a busca pela liberdade, a banda se tornou uma referência na cena musical.</p>
+                    <p>Com mais de 125 milhões de álbuns vendidos mundialmente, Metallica é conhecida por clássicos como "Master of Puppets", "Enter Sandman" e "Nothing Else Matters". A banda continua ativa e influenciando novas gerações de músicos.</p>
+                </div>
+            </div>
+            
+            <div class="albums-section">
+                <h2 class="albums-title">Álbuns Essenciais</h2>
+                <div class="albums-grid">
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Metallica poster.jpeg" alt="Kill 'Em All">
+                        </div>
+                        <div class="album-year">1983</div>
+                        <div class="album-name">Kill 'Em All</div>
+                        <div class="album-tracks">
+                            <div class="track-item hit-song">Hit the Lights</div>
+                            <div class="track-item">The Four Horsemen</div>
+                            <div class="track-item">Motorbreath</div>
+                            <div class="track-item hit-song">Seek & Destroy</div>
+                            <div class="track-item">Whiplash</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="metallica ride.jpeg" alt="Ride the Lightning">
+                        </div>
+                        <div class="album-year">1984</div>
+                        <div class="album-name">Ride the Lightning</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Fight Fire with Fire</div>
+                            <div class="track-item hit-song">Ride the Lightning</div>
+                            <div class="track-item">For Whom the Bell Tolls</div>
+                            <div class="track-item hit-song">Fade to Black</div>
+                            <div class="track-item">Creeping Death</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="METALLICA222.jpeg" alt="Master of Puppets">
+                        </div>
+                        <div class="album-year">1986</div>
+                        <div class="album-name">Master of Puppets</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Battery</div>
+                            <div class="track-item hit-song">Master of Puppets</div>
+                            <div class="track-item">The Thing That Should Not Be</div>
+                            <div class="track-item hit-song">Welcome Home (Sanitarium)</div>
+                            <div class="track-item">Orion</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="black albun.jpeg" alt="Black Album">
+                        </div>
+                        <div class="album-year">1991</div>
+                        <div class="album-name">Black Album</div>
+                        <div class="album-tracks">
+                            <div class="track-item hit-song">Enter Sandman</div>
+                            <div class="track-item">Sad But True</div>
+                            <div class="track-item">Holier Than Thou</div>
+                            <div class="track-item hit-song">The Unforgiven</div>
+                            <div class="track-item hit-song">Nothing Else Matters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Gojira -->
+    <div id="gojira" class="page gojira">
+        <div class="container">
+            <div class="band-header">
+                <h1 class="band-title">Gojira</h1>
+                <p class="band-subtitle">Progressive Metal from France</p>
+            </div>
+            
+            <div class="band-content">
+                <div class="band-image">
+                    <img src="Gojira Band (1).jpeg" alt="Gojira">
+                </div>
+                
+                <div class="band-info">
+                    <h3>História da Banda</h3>
+                    <p>Formada em 1996 em Bayonne, França, Gojira é uma das bandas de metal progressivo mais respeitadas da atualidade. Liderada pelos irmãos Joe e Mario Duplantier, a banda combina técnica instrumental excepcional com consciência ambiental.</p>
+                    
+                    <p>Conhecida por suas letras sobre preservação ambiental e espiritualidade, Gojira ganhou reconhecimento mundial com álbuns como "From Mars to Sirius" e "L'Enfant Sauvage". Sua performance nas Olimpíadas de Paris 2024 os consolidou como ícones do metal francês.</p>
+                </div>
+            </div>
+
+            <div class="albums-section">
+                <h2 class="albums-title">Álbuns Essenciais</h2>
+                <div class="albums-grid">
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Gojira_ From Mars to Sirius.jpeg" alt="From Mars to Sirius">
+                        </div>
+                        <div class="album-year">2005</div>
+                        <div class="album-name">From Mars to Sirius</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Ocean Planet</div>
+                            <div class="track-item">Backbone</div>
+                            <div class="track-item">From the Sky</div>
+                            <div class="track-item hit-song">Flying Whales</div>
+                            <div class="track-item hit-song">Where Dragons Dwell</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Gojira - L'Enfant Sauvage (2012).jpeg" alt="L'Enfant Sauvage">
+                        </div>
+                        <div class="album-year">2012</div>
+                        <div class="album-name">L'Enfant Sauvage</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Explosia</div>
+                            <div class="track-item hit-song">L'Enfant Sauvage</div>
+                            <div class="track-item">Liquid Fire</div>
+                            <div class="track-item">The Axe</div>
+                            <div class="track-item hit-song">Born in Winter</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Gojira - Magma.jpeg" alt="Magma">
+                        </div>
+                        <div class="album-year">2016</div>
+                        <div class="album-name">Magma</div>
+                        <div class="album-tracks">
+                            <div class="track-item">The Shooting Star</div>
+                            <div class="track-item hit-song">Silvera</div>
+                            <div class="track-item">The Cell</div>
+                            <div class="track-item hit-song">Stranded</div>
+                            <div class="track-item">Yellow Stone</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Gojira - Fortitude (2021).jpeg" alt="Fortitude">
+                        </div>
+                        <div class="album-year">2021</div>
+                        <div class="album-name">Fortitude</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Born for One Thing</div>
+                            <div class="track-item hit-song">Amazonia</div>
+                            <div class="track-item">Another World</div>
+                            <div class="track-item">Hold On</div>
+                            <div class="track-item hit-song">Into the Storm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Rammstein -->
+    <div id="rammstein" class="page rammstein">
+        <div class="container">
+            <div class="band-header">
+                <h1 class="band-title">Rammstein</h1>
+                <p class="band-subtitle">Industrial Metal Titans</p>
+            </div>
+            
+            <div class="band-content">
+                <div class="band-image">
+                    <img src="raimmest.jpeg" alt="Rammstein">
+                </div>
+                
+                <div class="band-info">
+                    <h3>História da Banda</h3>
+                    <p>Formada em 1994 em Berlim, Alemanha, Rammstein é a banda de metal industrial mais famosa do mundo. Conhecida por seus shows pirotécnicos espetaculares e letras em alemão, a banda criou um estilo único que combina metal pesado com elementos eletrônicos.</p>
+                    
+                    <p>Liderada pelo carismático Till Lindemann, Rammstein vendeu mais de 20 milhões de álbuns mundialmente. Suas performances teatrais e controversas os tornaram uma das bandas mais icônicas e reconhecíveis do metal moderno.</p>
+                </div>
+            </div>
+
+            <div class="albums-section">
+                <h2 class="albums-title">Discografia Principal</h2>
+                <div class="albums-grid">
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Herzeleid - Rammstein.jpeg" alt="Herzeleid">
+                        </div>
+                        <div class="album-year">1995</div>
+                        <div class="album-name">Herzeleid</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Wollt ihr das Bett in Flammen sehen?</div>
+                            <div class="track-item hit-song">Du riechst so gut</div>
+                            <div class="track-item">Das alte Leid</div>
+                            <div class="track-item">Heirate mich</div>
+                            <div class="track-item hit-song">Herzeleid</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="_Sehnsucht_!!!.jpeg" alt="Sehnsucht">
+                        </div>
+                        <div class="album-year">1997</div>
+                        <div class="album-name">Sehnsucht</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Sehnsucht</div>
+                            <div class="track-item hit-song">Engel</div>
+                            <div class="track-item">Tier</div>
+                            <div class="track-item hit-song">Du hast</div>
+                            <div class="track-item">Bück dich</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="rammstein poster.jpeg" alt="Mutter">
+                        </div>
+                        <div class="album-year">2001</div>
+                        <div class="album-name">Mutter</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Mein Herz brennt</div>
+                            <div class="track-item">Links 2-3-4</div>
+                            <div class="track-item hit-song">Sonne</div>
+                            <div class="track-item">Ich will</div>
+                            <div class="track-item hit-song">Mutter</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="Rammstein_Album Rammstein.jpeg" alt="Rammstein">
+                        </div>
+                        <div class="album-year">2019</div>
+                        <div class="album-name">Rammstein</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Deutschland</div>
+                            <div class="track-item hit-song">Radio</div>
+                            <div class="track-item">Zeig dich</div>
+                            <div class="track-item">Ausländer</div>
+                            <div class="track-item hit-song">Puppe</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Mötley Crüe -->
+    <div id="motley" class="page motley">
+        <div class="container">
+            <div class="band-header">
+                <h1 class="band-title">Mötley Crüe</h1>
+                <p class="band-subtitle">Glam Metal Legends</p>
+            </div>
+            
+            <div class="band-content">
+                <div class="band-image">
+                    <img src="motley.jpeg" alt="Mötley Crüe">
+                </div>
+                
+                <div class="band-info">
+                    <h3>História da Banda</h3>
+                    <p>Formada em 1981 em Los Angeles, Mötley Crüe é uma das bandas mais emblemáticas do glam metal dos anos 80. Conhecida por seu estilo de vida excessivo e performances energéticas, a banda definiu uma era do rock.</p>
+                    
+                    <p>Com hits como "Dr. Feelgood", "Girls, Girls, Girls" e "Kickstart My Heart", Mötley Crüe vendeu mais de 100 milhões de álbuns mundialmente. Sua história turbulenta foi retratada no filme "The Dirt" e na autobiografia homônima.</p>
+                </div>
+            </div>
+
+            <div class="albums-section">
+                <h2 class="albums-title">Álbuns Icônicos</h2>
+                <div class="albums-grid">
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="shout at the devil.webp" alt="Shout at the Devil">
+                        </div>
+                        <div class="album-year">1983</div>
+                        <div class="album-name">Shout at the Devil</div>
+                        <div class="album-tracks">
+                            <div class="track-item hit-song">Shout at the Devil</div>
+                            <div class="track-item">Looks That Kill</div>
+                            <div class="track-item">Bastard</div>
+                            <div class="track-item hit-song">Too Young to Fall in Love</div>
+                            <div class="track-item">Knock 'Em Dead, Kid</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="girls girls girls.jpeg" alt="Girls, Girls, Girls">
+                        </div>
+                        <div class="album-year">1987</div>
+                        <div class="album-name">Girls, Girls, Girls</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Wild Side</div>
+                            <div class="track-item hit-song">Girls, Girls, Girls</div>
+                            <div class="track-item">Dancing on Glass</div>
+                            <div class="track-item">Bad Boy Boogie</div>
+                            <div class="track-item hit-song">You're All I Need</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="dr.fellgood.jpeg" alt="Dr. Feelgood">
+                        </div>
+                        <div class="album-year">1989</div>
+                        <div class="album-name">Dr. Feelgood</div>
+                        <div class="album-tracks">
+                            <div class="track-item">T.n.T. (Terror 'n Tinseltown)</div>
+                            <div class="track-item hit-song">Dr. Feelgood</div>
+                            <div class="track-item">Slice of Your Pie</div>
+                            <div class="track-item hit-song">Kickstart My Heart</div>
+                            <div class="track-item hit-song">Without You</div>
+                        </div>
+                    </div>
+                    <div class="album-card">
+                        <div class="album-cover">
+                            <img src="the dirt.jpeg
+                            " alt="The Dirt">
+                        </div>
+                        <div class="album-year">1994</div>
+                        <div class="album-name">The Dirt</div>
+                        <div class="album-tracks">
+                            <div class="track-item">Red Hot</div>
+                            <div class="track-item hit-song">On With the Show</div>
+                            <div class="track-item">Teaser</div>
+                            <div class="track-item">Rock and Roll Junkie</div>
+                            <div class="track-item hit-song">Danger</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // Esconde todas as páginas
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Mostra a página selecionada
+            document.getElementById(pageId).classList.add('active');
+            
+            // Atualiza os botões de navegação
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Ativa o botão correspondente
+            event.currentTarget.classList.add('active');
+            
+            // Rolagem suave para o topo
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
